@@ -5,7 +5,7 @@ from openai import AsyncOpenAI
 
 from src.config import settings
 from src.db.mongo import get_db
-from src.llm.prompt import SYSTEM_PROMPT
+from src.llm.prompt import build_system_prompt
 from src.models.conversation import ChatMessage, Conversation
 
 logger = logging.getLogger(__name__)
@@ -68,7 +68,8 @@ async def build_context(conversation: Conversation) -> list[dict]:
     - system prompt (com resumo se existir)
     - últimas WINDOW_SIZE mensagens
     """
-    system_content = SYSTEM_PROMPT
+    language_code = conversation.user_info.get("language_code")
+    system_content = build_system_prompt(language_code)
     if conversation.summary:
         system_content += f"\n\n## Resumo do histórico desta conversa\n{conversation.summary}"
 

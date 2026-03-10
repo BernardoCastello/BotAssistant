@@ -9,7 +9,7 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel
 
 from src.config import settings
-from src.core.retrieval_service import _embedding_to_str, _embed
+from src.core.retrieval_service import _embed
 from src.db.mongo import get_db
 from src.db.postgres import get_pool
 
@@ -129,12 +129,11 @@ async def generate_embedding(item_id: int, _=Depends(verify_admin)):
 
     input_text = f"{row['keywords']}\n{row['text']}"
     embedding = await _embed(input_text)
-    embedding_str = _embedding_to_str(embedding)
 
     async with pool.acquire() as conn:
         await conn.execute(
             "UPDATE knowledge SET embedding=$1::vector WHERE id=$2",
-            embedding_str, item_id,
+            embedding, item_id,
         )
     return {"message": f"Embedding gerado para ID {item_id}."}
 
@@ -155,11 +154,10 @@ async def embed_all_pending(_=Depends(verify_admin)):
     for row in rows:
         input_text = f"{row['keywords']}\n{row['text']}"
         embedding = await _embed(input_text)
-        embedding_str = _embedding_to_str(embedding)
         async with pool.acquire() as conn:
             await conn.execute(
                 "UPDATE knowledge SET embedding=$1::vector WHERE id=$2",
-                embedding_str, row["id"],
+                embedding, row["id"],
             )
         count += 1
 
@@ -214,7 +212,7 @@ async def get_metrics(_=Depends(verify_admin)):
     total_conversations = await db.conversations.count_documents({})
 
     pipeline = [
-        {"$project": {"message_count": {"$size": "$messages"}, "platform": 1, "user_info": 1, "updated_at": 1}},
+        {"$project": {"_id": 0, "chat_id": 1, "message_count": {"$size": "$messages"}, "platform": 1, "user_info": 1}},
         {"$sort": {"message_count": -1}},
         {"$limit": 5},
     ]
@@ -243,7 +241,7 @@ async def get_metrics(_=Depends(verify_admin)):
         "top_users": [
             {
                 "name": u.get("user_info", {}).get("name", "Desconhecido"),
-                "chat_id": u["_id"] if "_id" in u else "",
+                "chat_id": u.get("chat_id", ""),
                 "message_count": u["message_count"],
             }
             for u in top_users

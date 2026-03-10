@@ -21,7 +21,6 @@ router = APIRouter()
 async def process_message(chat_id: str, text: str, user_name: str, user_info: dict) -> None:
     logger.info(f"Processando mensagem de {user_name} (chat_id={chat_id}): {text!r}")
 
-    # Verifica rate limit antes de qualquer processamento
     if await is_rate_limited(chat_id):
         await send_message(
             int(chat_id),
@@ -71,11 +70,13 @@ async def telegram_webhook(
     message = update.message
     chat_id = str(message.chat.id)
     text = message.text
-    user_name = message.from_.first_name if message.from_ else "Desconhecido"
+    user = message.from_
+    user_name = user.first_name if user else "Desconhecido"
     user_info = {
         "name": user_name,
-        "username": message.from_.username if message.from_ else None,
-        "telegram_id": message.from_.id if message.from_ else None,
+        "username": user.username if user else None,
+        "telegram_id": user.id if user else None,
+        "language_code": user.language_code if user else None,
     }
 
     background_tasks.add_task(process_message, chat_id, text, user_name, user_info)

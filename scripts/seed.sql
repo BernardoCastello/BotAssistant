@@ -30,15 +30,11 @@ INSERT INTO knowledge (category, keywords, text) VALUES
 
 ('sobre',
  'apresentação, quem é, desenvolvedor, background, experiência',
- 'Sou [Seu Nome], desenvolvedor de software com X anos de experiência. Tenho foco em desenvolvimento backend com Python e construção de APIs, automações e sistemas escaláveis. Trabalho tanto com projetos freelance quanto consultoria técnica.'),
+ 'Sou Bernardo Castello, desenvolvedor de software com 2 anos de experiência profissional. Tenho foco em desenvolvimento backend com Python e construção de APIs, automações e sistemas escaláveis. Sou formado em Engenharia de Computação pela Universidade Federal do Rio Grande(FURG)'),
 
 ('skill',
- 'backend, python, fastapi, django, node',
- 'No backend, trabalho principalmente com Python (FastAPI e Django) e Node.js. Tenho experiência avançada em construção de APIs REST, workers assíncronos e integrações com serviços externos.'),
-
-('skill',
- 'frontend, react, typescript, html, css',
- 'No frontend, trabalho com React e TypeScript para construção de interfaces web. Tenho experiência intermediária com estilização, componentes reutilizáveis e integração com APIs.'),
+ 'backend, python, fastapi, flask',
+ 'No backend, trabalho principalmente com Python (FastAPI e flask). Tenho experiência avançada em construção de APIs REST, workers assíncronos e integrações com serviços externos.'),
 
 ('skill',
  'banco de dados, postgresql, mongodb, redis',
@@ -53,7 +49,7 @@ INSERT INTO knowledge (category, keywords, text) VALUES
  'Projeto: API de Gestão de Tarefas. API REST completa com autenticação JWT, CRUD de tarefas, envio de notificações por email e documentação automática via Swagger. Stack: Python, FastAPI, PostgreSQL, Docker. Repositório: https://github.com/seuuser/tasks-api'),
 
 ('projeto',
- 'bot, monitoramento, preços, e-commerce, telegram, scraping',
+ 'bot, monitoramento, preços, e-commerce, telegram, whatsapp, scraping',
  'Projeto: Bot de Monitoramento de Preços. Bot que monitora preços em e-commerces e envia alertas via Telegram quando o preço cai. Stack: Python, Selenium, MongoDB, Telegram Bot API. Repositório: https://github.com/seuuser/price-monitor'),
 
 ('projeto',
@@ -62,20 +58,12 @@ INSERT INTO knowledge (category, keywords, text) VALUES
 
 ('contato',
  'email, contato, mensagem, falar, orçamento',
- 'Para entrar em contato por email: seuemail@gmail.com. É a forma mais rápida para discutir projetos e orçamentos. Respondo em até 24 horas úteis.'),
+ 'Para entrar em contato por email: becastellosilva@gmail.com. É a forma mais rápida para discutir projetos e orçamentos. Respondo em até 24 horas úteis.'),
 
 ('contato',
  'linkedin, rede social, perfil profissional',
- 'Perfil no LinkedIn: https://linkedin.com/in/seuperfil. Lá você encontra meu histórico profissional completo e projetos em destaque.'),
+ 'Perfil no LinkedIn: https://www.linkedin.com/in/bernardo-castello-silva/. Lá você encontra meu histórico profissional completo e projetos em destaque.'),
 
 ('contato',
  'github, código, repositórios, open source',
- 'GitHub: https://github.com/seuuser. Repositório com projetos pessoais, contribuições open source e exemplos de código.'),
-
-('servico',
- 'freelance, disponibilidade, projetos, consultoria, contratar',
- 'Estou disponível para projetos freelance, consultoria técnica e desenvolvimento sob demanda. Serviços: desenvolvimento de APIs, automação de processos, integrações entre sistemas e consultoria em arquitetura. Para orçamentos, entre em contato por email.'),
-
-('servico',
- 'prazo, entrega, tempo, cronograma',
- 'Prazos variam conforme complexidade. Projetos simples (automações, APIs básicas) levam de 1 a 2 semanas. Sistemas completos de 1 a 3 meses. Cronograma sempre alinhado antes de iniciar.');
+ 'GitHub: https://github.com/BernardoCastello. Repositório com projetos pessoais, contribuições open source e exemplos de código.');

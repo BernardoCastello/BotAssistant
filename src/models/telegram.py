@@ -5,6 +5,7 @@ class TelegramUser(BaseModel):
     id: int
     first_name: str
     username: str | None = None
+    language_code: str | None = None  # ex: "pt", "en", "es"
 
 
 class TelegramChat(BaseModel):
