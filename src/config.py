@@ -23,8 +23,12 @@ class Settings(BaseSettings):
     redis_uri: str
 
     # Rate limiting
-    rate_limit_messages: int = 10   # máximo de mensagens...
-    rate_limit_window: int = 60     # ...por janela em segundos
+    rate_limit_messages: int = 10
+    rate_limit_window: int = 60
+
+    # Admin
+    admin_user: str = "admin"
+    admin_password: str
 
     # Memória
     memory_window_size: int = 10

@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from src.adapters.admin.router import router as admin_router
 from src.adapters.telegram.router import router as telegram_router
 from src.db.mongo import connect as mongo_connect
 from src.db.mongo import disconnect as mongo_disconnect
@@ -33,6 +34,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Personal Assistant Bot", lifespan=lifespan)
 app.include_router(telegram_router, prefix="/webhook")
+app.include_router(admin_router, prefix="/admin")
 
 
 @app.get("/health")

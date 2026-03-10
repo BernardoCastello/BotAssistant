@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Bot Currículo</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #13161d;
+    --border: #1e2330;
+    --accent: #00e5a0;
+    --accent2: #0094ff;
+    --danger: #ff4757;
+    --warn: #ffa502;
+    --text: #e8eaf0;
+    --muted: #5a6070;
+    --card: #161921;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; min-height: 100vh; }
+
+  /* Layout */
+  .layout { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    display: flex; flex-direction: column;
+    position: sticky; top: 0; height: 100vh;
+  }
+  .logo {
+    padding: 0 20px 28px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .logo-title { font-size: 15px; font-weight: 800; letter-spacing: 0.05em; color: var(--accent); }
+  .logo-sub { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 20px; cursor: pointer;
+    font-size: 13px; font-weight: 600; color: var(--muted);
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+  }
+  .nav-item:hover { color: var(--text); background: var(--border); }
+  .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(0,229,160,0.06); }
+  .nav-icon { font-size: 16px; }
+
+  /* Main */
+  .main { padding: 32px; overflow-y: auto; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-title { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+  .page-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+
+  /* Metrics cards */
+  .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+  .metric-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+  }
+  .metric-label { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.08em; }
+  .metric-value { font-size: 32px; font-weight: 800; margin-top: 6px; }
+  .metric-value.green { color: var(--accent); }
+  .metric-value.blue { color: var(--accent2); }
+  .metric-value.warn { color: var(--warn); }
+
+  /* Table */
+  .table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .table-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+  }
+  .table-title { font-size: 14px; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    text-align: left; padding: 10px 20px;
+    font-size: 11px; color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    background: var(--surface); border-bottom: 1px solid var(--border);
+  }
+  td { padding: 12px 20px; font-size: 13px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  .td-truncate { max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* Badges */
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 11px; font-family: 'JetBrains Mono', monospace; font-weight: 600;
+  }
+  .badge-green { background: rgba(0,229,160,0.12); color: var(--accent); }
+  .badge-warn  { background: rgba(255,165,2,0.12);  color: var(--warn); }
+  .badge-blue  { background: rgba(0,148,255,0.12);  color: var(--accent2); }
+  .badge-red   { background: rgba(255,71,87,0.12);  color: var(--danger); }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border-radius: 8px; border: none;
+    font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .btn-primary { background: var(--accent); color: #000; }
+  .btn-primary:hover { background: #00ffb3; }
+  .btn-danger  { background: rgba(255,71,87,0.15); color: var(--danger); border: 1px solid rgba(255,71,87,0.3); }
+  .btn-danger:hover  { background: rgba(255,71,87,0.25); }
+  .btn-ghost   { background: var(--border); color: var(--text); }
+  .btn-ghost:hover   { background: #2a2f3d; }
+  .btn-blue    { background: rgba(0,148,255,0.15); color: var(--accent2); border: 1px solid rgba(0,148,255,0.3); }
+  .btn-blue:hover    { background: rgba(0,148,255,0.25); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Form */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1/-1; }
+  label { font-size: 12px; color: var(--muted); font-weight: 600; }
+  input, select, textarea {
+    background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); padding: 9px 12px; border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    transition: border-color 0.15s; outline: none;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 90px; }
+  select option { background: var(--surface); }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 28px; width: 560px; max-width: 95vw;
+    max-height: 85vh; overflow-y: auto;
+    transform: translateY(12px); transition: transform 0.2s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-title { font-size: 16px; font-weight: 800; margin-bottom: 20px; }
+  .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+  /* Chat viewer */
+  .chat-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+  .chat-bubble {
+    padding: 10px 14px; border-radius: 10px; max-width: 80%;
+    font-size: 13px; line-height: 1.5;
+  }
+  .bubble-user { background: rgba(0,148,255,0.1); border: 1px solid rgba(0,148,255,0.2); align-self: flex-end; }
+  .bubble-assistant { background: var(--card); border: 1px solid var(--border); align-self: flex-start; }
+  .bubble-role { font-size: 10px; color: var(--muted); margin-bottom: 4px; font-family: 'JetBrains Mono', monospace; }
+
+  /* Toast */
+  #toast {
+    position: fixed; bottom: 28px; right: 28px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 18px;
+    font-size: 13px; font-weight: 600;
+    opacity: 0; transform: translateY(8px);
+    transition: all 0.2s; pointer-events: none; z-index: 200;
+  }
+  #toast.show { opacity: 1; transform: translateY(0); }
+  #toast.success { border-color: var(--accent); color: var(--accent); }
+  #toast.error   { border-color: var(--danger); color: var(--danger); }
+
+  /* Misc */
+  .section-title { font-size: 14px; font-weight: 700; margin: 28px 0 12px; }
+  .empty { padding: 40px; text-align: center; color: var(--muted); font-size: 13px; }
+  .spin { animation: spin 1s linear infinite; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .actions { display: flex; gap: 6px; }
+  .summary-box {
+    background: rgba(0,229,160,0.04); border: 1px solid rgba(0,229,160,0.15);
+    border-radius: 8px; padding: 12px; font-size: 12px; color: var(--muted);
+    font-family: 'JetBrains Mono', monospace; line-height: 1.6; margin-bottom: 16px;
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-title">⚡ BOT ADMIN</div>
+      <div class="logo-sub">painel de controle</div>
+    </div>
+    <nav>
+      <div class="nav-item active" onclick="navigate('metrics')"><span class="nav-icon">📊</span> Métricas</div>
+      <div class="nav-item" onclick="navigate('knowledge')"><span class="nav-icon">🧠</span> Knowledge</div>
+      <div class="nav-item" onclick="navigate('conversations')"><span class="nav-icon">💬</span> Conversas</div>
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- Metrics -->
+    <div id="page-metrics" class="page active">
+      <div class="page-title">Métricas</div>
+      <div class="page-sub">Visão geral de uso do bot</div>
+      <div class="metrics-grid" id="metrics-cards">
+        <div class="metric-card"><div class="metric-label">Conversas</div><div class="metric-value green" id="m-convs">—</div></div>
+        <div class="metric-card"><div class="metric-label">Mensagens</div><div class="metric-value blue" id="m-msgs">—</div></div>
+        <div class="metric-card"><div class="metric-label">Knowledge</div><div class="metric-value" id="m-know">—</div></div>
+        <div class="metric-card"><div class="metric-label">Sem embedding</div><div class="metric-value warn" id="m-pend">—</div></div>
+      </div>
+      <div class="section-title">Top usuários por mensagens</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Nome</th><th>Chat ID</th><th>Mensagens</th></tr></thead>
+          <tbody id="top-users-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Knowledge -->
+    <div id="page-knowledge" class="page">
+      <div class="page-title">Knowledge Base</div>
+      <div class="page-sub">Gerencie os dados que o bot usa para responder</div>
+      <div style="display:flex;gap:10px;margin-bottom:20px;">
+        <button class="btn btn-primary" onclick="openModal('new')">+ Novo registro</button>
+        <button class="btn btn-blue" onclick="embedAll()" id="btn-embed-all">⚡ Gerar embeddings pendentes</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Categoria</th><th>Keywords</th><th>Texto</th><th>Embedding</th><th>Ações</th></tr></thead>
+          <tbody id="knowledge-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Conversations -->
+    <div id="page-conversations" class="page">
+      <div class="page-title">Conversas</div>
+      <div class="page-sub">Histórico de conversas salvas no MongoDB</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Usuário</th><th>Chat ID</th><th>Plataforma</th><th>Última mensagem</th><th>Atualizado</th><th></th></tr></thead>
+          <tbody id="conversations-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Modal Knowledge -->
+<div class="modal-overlay" id="modal-knowledge">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Novo registro</div>
+    <div class="form-grid">
+      <input type="hidden" id="edit-id">
+      <div class="form-group">
+        <label>Categoria</label>
+        <select id="edit-category">
+          <option value="sobre">sobre</option>
+          <option value="skill">skill</option>
+          <option value="projeto">projeto</option>
+          <option value="contato">contato</option>
+          <option value="servico">servico</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Keywords</label>
+        <input type="text" id="edit-keywords" placeholder="python, fastapi, backend...">
+      </div>
+      <div class="form-group full">
+        <label>Texto</label>
+        <textarea id="edit-text" placeholder="Texto que o bot vai usar como contexto..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveKnowledge()" id="btn-save">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Conversa -->
+<div class="modal-overlay" id="modal-conversation">
+  <div class="modal" style="width:640px">
+    <div class="modal-title" id="conv-modal-title">Conversa</div>
+    <div id="conv-summary-wrap"></div>
+    <div class="chat-list" id="conv-messages"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeConvModal()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const API = '';
+
+// ── Navigation ───────────────────────────────────────────────────────────────
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (page === 'metrics') loadMetrics();
+  if (page === 'knowledge') loadKnowledge();
+  if (page === 'conversations') loadConversations();
+}
+
+// ── Toast ────────────────────────────────────────────────────────────────────
+function toast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `show ${type}`;
+  setTimeout(() => t.className = '', 3000);
+}
+
+// ── Fetch helper ─────────────────────────────────────────────────────────────
+async function api(path, opts = {}) {
+  const res = await fetch(API + '/admin' + path, {
+    headers: { 'Content-Type': 'application/json' },
+    ...opts,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Erro ${res.status}`);
+  }
+  return res.json();
+}
+
+// ── Metrics ──────────────────────────────────────────────────────────────────
+async function loadMetrics() {
+  try {
+    const d = await api('/metrics');
+    document.getElementById('m-convs').textContent = d.total_conversations;
+    document.getElementById('m-msgs').textContent = d.total_messages;
+    document.getElementById('m-know').textContent = d.knowledge_records;
+    document.getElementById('m-pend').textContent = d.pending_embeddings;
+    const tbody = document.getElementById('top-users-body');
+    tbody.innerHTML = d.top_users.length ? d.top_users.map(u => `
+      <tr>
+        <td>${u.name}</td>
+        <td><span style="font-family:monospace;color:var(--muted)">${u.chat_id}</span></td>
+        <td><span class="badge badge-blue">${u.message_count}</span></td>
+      </tr>`).join('') : '<tr><td colspan="3" class="empty">Nenhuma conversa ainda</td></tr>';
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ── Knowledge ─────────────────────────────────────────────────────────────────
+async function loadKnowledge() {
+  try {
+    const rows = await api('/knowledge');
+    const tbody = document.getElementById('knowledge-body');
+    tbody.innerHTML = rows.length ? rows.map(r => `
+      <tr>
+        <td><span style="font-family:monospace;color:var(--muted)">#${r.id}</span></td>
+        <td><span class="badge badge-blue">${r.category}</span></td>
+        <td class="td-truncate" style="color:var(--muted);max-width:160px">${r.keywords}</td>
+        <td class="td-truncate">${r.text}</td>
+        <td>${r.has_embedding
+          ? '<span class="badge badge-green">✓ ok</span>'
+          : '<span class="badge badge-warn">pendente</span>'}</td>
+        <td>
+          <div class="actions">
+            ${!r.has_embedding ? `<button class="btn btn-blue" style="padding:4px 8px;font-size:11px" onclick="embedOne(${r.id})">embed</button>` : ''}
+            <button class="btn btn-ghost" style="padding:4px 8px;font-size:11px" onclick="openModal('edit',${JSON.stringify(r).replace(/"/g,'&quot;')})">editar</button>
+            <button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="deleteKnowledge(${r.id})">del</button>
+          </div>
+        </td>
+      </tr>`).join('') : '<tr><td colspan="6" class="empty">Nenhum registro</td></tr>';
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function openModal(mode, row) {
+  document.getElementById('modal-title').textContent = mode === 'new' ? 'Novo registro' : 'Editar registro';
+  document.getElementById('edit-id').value = row ? row.id : '';
+  document.getElementById('edit-category').value = row ? row.category : 'sobre';
+  document.getElementById('edit-keywords').value = row ? row.keywords : '';
+  document.getElementById('edit-text').value = row ? row.text : '';
+  document.getElementById('modal-knowledge').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal-knowledge').classList.remove('open');
+}
+
+async function saveKnowledge() {
+  const id = document.getElementById('edit-id').value;
+  const body = {
+    category: document.getElementById('edit-category').value,
+    keywords: document.getElementById('edit-keywords').value,
+    text: document.getElementById('edit-text').value,
+  };
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true; btn.textContent = 'Salvando...';
+  try {
+    if (id) {
+      await api(`/knowledge/${id}`, { method: 'PUT', body: JSON.stringify(body) });
+      toast('Registro atualizado! Embedding foi resetado.');
+    } else {
+      await api('/knowledge', { method: 'POST', body: JSON.stringify(body) });
+      toast('Registro criado! Gere o embedding para ativá-lo.');
+    }
+    closeModal();
+    loadKnowledge();
+  } catch(e) { toast(e.message, 'error'); }
+  finally { btn.disabled = false; btn.textContent = 'Salvar'; }
+}
+
+async function deleteKnowledge(id) {
+  if (!confirm(`Deletar registro #${id}?`)) return;
+  try {
+    await api(`/knowledge/${id}`, { method: 'DELETE' });
+    toast('Registro deletado.');
+    loadKnowledge();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function embedOne(id) {
+  try {
+    toast('Gerando embedding...');
+    await api(`/knowledge/${id}/embed`, { method: 'POST' });
+    toast(`Embedding gerado para #${id}!`);
+    loadKnowledge();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function embedAll() {
+  const btn = document.getElementById('btn-embed-all');
+  btn.disabled = true; btn.textContent = '⏳ Gerando...';
+  try {
+    const r = await api('/knowledge/embed-all', { method: 'POST' });
+    toast(r.message);
+    loadKnowledge();
+  } catch(e) { toast(e.message, 'error'); }
+  finally { btn.disabled = false; btn.textContent = '⚡ Gerar embeddings pendentes'; }
+}
+
+// ── Conversations ─────────────────────────────────────────────────────────────
+async function loadConversations() {
+  try {
+    const rows = await api('/conversations');
+    const tbody = document.getElementById('conversations-body');
+    tbody.innerHTML = rows.length ? rows.map(r => `
+      <tr>
+        <td><strong>${r.user_info?.name || '—'}</strong>${r.user_info?.username ? `<br><span style="font-size:11px;color:var(--muted)">@${r.user_info.username}</span>` : ''}</td>
+        <td><span style="font-family:monospace;font-size:12px;color:var(--muted)">${r.chat_id}</span></td>
+        <td><span class="badge badge-blue">${r.platform}</span></td>
+        <td class="td-truncate" style="color:var(--muted)">${r.last_message}</td>
+        <td style="font-size:12px;color:var(--muted)">${new Date(r.updated_at).toLocaleString('pt-BR')}</td>
+        <td><button class="btn btn-ghost" style="padding:4px 10px;font-size:11px" onclick="viewConversation('${r.chat_id}')">ver</button></td>
+      </tr>`).join('') : '<tr><td colspan="6" class="empty">Nenhuma conversa ainda</td></tr>';
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function viewConversation(chatId) {
+  try {
+    const d = await api(`/conversations/${chatId}`);
+    document.getElementById('conv-modal-title').textContent =
+      `${d.user_info?.name || 'Conversa'} · ${d.platform}`;
+    const summaryWrap = document.getElementById('conv-summary-wrap');
+    summaryWrap.innerHTML = d.summary
+      ? `<div class="summary-box"><strong style="color:var(--accent)">Resumo:</strong><br>${d.summary}</div>`
+      : '';
+    const msgs = document.getElementById('conv-messages');
+    msgs.innerHTML = d.messages.map(m => `
+      <div class="chat-bubble ${m.role === 'user' ? 'bubble-user' : 'bubble-assistant'}">
+        <div class="bubble-role">${m.role}</div>
+        ${m.content}
+      </div>`).join('');
+    document.getElementById('modal-conversation').classList.add('open');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function closeConvModal() {
+  document.getElementById('modal-conversation').classList.remove('open');
+}
+
+// Fecha modal clicando fora
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+});
+
+// Load inicial
+loadMetrics();
+</script>
+</body>
+</html>
