@@ -1,1 +1,40 @@
+# Variáveis de ambiente — NUNCA commitar
 .env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Certificados SSL gerados pelo Certbot
+certbot_conf/
+certbot_www/
+
+# Chave SSH da EC2
+*.pem
+*.key
+ssh/
+
+# Logs
+*.log
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker volumes (caso sejam montados localmente)
+mongo_data/
+pg_data/

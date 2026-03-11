@@ -36,16 +36,12 @@ ngrok http 8000
 # Copie a URL https://xxxx.ngrok.io para WEBHOOK_BASE_URL no .env
 ```
 
-### Subir o container
+### Subir o container local para dev
 
 ```bash
-docker compose up --build
+docker compose -f docker-compose.dev.yml up
 ```
-### Gera embeddings
 
-```bash
-docker compose exec bot python scripts/generate_embeddings.py
-```
 
 ### Registrar o webhook no Telegram
 
