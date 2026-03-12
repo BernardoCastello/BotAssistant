@@ -34,6 +34,9 @@ jobs:
             echo "⏳ Aguardando bot ficar saudável..."
             sleep 15
 
+            echo "🔄 Reiniciando nginx para atualizar DNS interno..."
+            docker compose restart nginx
+
             echo "✅ Verificando status..."
             docker compose ps
 
