@@ -1,0 +1,54 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy na EC2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+
+            cd /opt/botcurriculo
+
+            echo "📦 Atualizando código..."
+            git pull origin main
+
+            echo "🔨 Rebuilding containers..."
+            docker compose up --build -d
+
+            echo "⏳ Aguardando bot ficar saudável..."
+            sleep 15
+
+            echo "✅ Verificando status..."
+            docker compose ps
+
+      - name: Notifica sucesso no Telegram
+        if: success()
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_DEPLOY_CHAT_ID }}" \
+            -d text="✅ *Deploy concluído com sucesso!*%0A%0A📦 Commit: \`${{ github.sha }}\`%0A👤 Por: ${{ github.actor }}%0A🕐 $(date '+%d/%m/%Y %H:%M')" \
+            -d parse_mode="Markdown"
+
+      - name: Notifica falha no Telegram
+        if: failure()
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_DEPLOY_CHAT_ID }}" \
+            -d text="❌ *Deploy FALHOU!*%0A%0A📦 Commit: \`${{ github.sha }}\`%0A👤 Por: ${{ github.actor }}%0A%0A🔍 Veja os logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            -d parse_mode="Markdown"
