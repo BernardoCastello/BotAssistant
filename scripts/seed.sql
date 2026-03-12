@@ -64,5 +64,5 @@ INSERT INTO knowledge (category, keywords, text) VALUES
 no processamento de mensagens. Utiliza MongoDB para armazenamento do histórico completo das conversas e PostgreSQL 
 (com suporte a retrieval) para armazenar informações estruturadas utilizadas pelo modelo.
  Integra a API da OpenAI para geração de respostas, processamento de linguagem natural e execução de tarefas inteligentes.
-  A aplicação é containerizada com Docker, permitindo fácil deploy e escalabilidade.
+  A aplicação é containerizada com Docker, permitindo fácil deploy e escalabilidade e deploy automático com github actions.
   O objetivo do chatbot é me apresentar e fornecer informações minhas e de meus projetos.');
