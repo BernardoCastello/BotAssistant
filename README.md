@@ -74,7 +74,7 @@ docker compose down -v
 
 ## Parado
 
-Atualmente offline para não gastar créditos adw
+Atualmente offline para não gastar créditos aws
 
 
 
