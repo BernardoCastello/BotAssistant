@@ -72,5 +72,9 @@ curl http://localhost:8000/health
 docker compose down -v
 ```
 
+## Parado
+
+Atualmente offline para não gastar créditos adw
+
 
 
